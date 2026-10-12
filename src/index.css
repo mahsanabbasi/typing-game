@@ -66,3 +66,41 @@ body {
   transform: scale(1.05);
   box-shadow: 0 0 22px rgba(212, 175, 55, 0.8);
 }
+
+/* leaderboard */
+.rank-1 {
+  border-color: #ffd700;
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.55);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.28), rgba(26, 28, 44, 0.9));
+}
+.rank-2 {
+  border-color: #c0c0c0;
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.45);
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), rgba(26, 28, 44, 0.9));
+}
+.rank-3 {
+  border-color: #cd7f32;
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.45);
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.22), rgba(26, 28, 44, 0.9));
+}
+.fresh-glow {
+  animation: freshPulse 1s ease-in-out 5;
+}
+@keyframes freshPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 45px rgba(255, 235, 150, 0.95); }
+}
+.float-sparkle {
+  position: fixed;
+  bottom: -30px;
+  color: var(--color-gold);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  100% { transform: translateY(-110vh) rotate(180deg); opacity: 0; }
+}
