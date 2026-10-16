@@ -63,13 +63,13 @@ app.get('/api/leaderboard', (req, res) => res.json(getLeaderboard()))
 // ---- game start: ek ID, ek attempt ----
 app.post('/api/start', (req, res) => {
   const userId = cleanId(req.body.userId)
-  if (!ID_PATTERN.test(userId)) return res.status(400).json({ error: 'ID ka format galat hai' })
+  if (!ID_PATTERN.test(userId)) return res.status(400).json({ error: 'Wrong id format' })
   try {
     db.prepare('INSERT INTO players (user_id, started_at) VALUES (?, ?)').run(userId, Date.now())
     res.json({ ok: true })
   } catch (e) {
     if (String(e.code).startsWith('SQLITE_CONSTRAINT')) {
-      return res.status(409).json({ error: 'Is ID se game pehle hi khela ja chuka hai' })
+      return res.status(409).json({ error: 'This id is used before' })
     }
     console.error(e)
     res.status(500).json({ error: 'Server error' })
@@ -85,14 +85,14 @@ app.post('/api/finish', (req, res) => {
     return res.status(400).json({ error: 'Stats galat hain' })
   }
   if (words < 0 || errors < 0 || cpm < 0 || cpm > 1500 || accuracy < 0 || accuracy > 100) {
-    return res.status(400).json({ error: 'Stats realistic nahi hain' })
+    return res.status(400).json({ error: 'Stats not realistic' })
   }
 
   const row = db.prepare('SELECT status, started_at FROM players WHERE user_id = ?').get(userId)
-  if (!row) return res.status(404).json({ error: 'Pehle game start karo' })
-  if (row.status === 'finished') return res.status(409).json({ error: 'Score pehle hi save ho chuka hai' })
+  if (!row) return res.status(404).json({ error: 'First start game' })
+  if (row.status === 'finished') return res.status(409).json({ error: 'Score is already saved' })
   if (Date.now() - row.started_at < 55000) {
-    return res.status(400).json({ error: 'Game itni jaldi khatam nahi ho sakta' })
+    return res.status(400).json({ error: 'Game cannot be end to early' })
   }
 
   db.prepare(`
@@ -108,7 +108,7 @@ app.post('/api/finish', (req, res) => {
 
 // ---- organizer reset (crash/refresh ki surat mein) ----
 app.delete('/api/admin/players/:userId', (req, res) => {
-  if (req.get('x-admin-key') !== ADMIN_KEY) return res.status(401).json({ error: 'Ijazat nahi' })
+  if (req.get('x-admin-key') !== ADMIN_KEY) return res.status(401).json({ error: 'not allowed' })
   const info = db.prepare('DELETE FROM players WHERE user_id = ?').run(cleanId(req.params.userId))
   broadcast()
   res.json({ deleted: info.changes })
